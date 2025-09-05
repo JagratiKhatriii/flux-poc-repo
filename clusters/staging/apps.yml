@@ -1,6 +1,72 @@
 apiVersion: kustomize.toolkit.fluxcd.io/v1
 kind: Kustomization
 metadata:
+  name: apps
+  namespace: flux-system
+spec:
+  interval: 1m0s
+  path: ./apps/staging
+  prune: true
+  sourceRef:
+    kind: GitRepository
+    name: flux-system
+# To make Flux use this file instead of kustomization.yaml,
+# you need to modify the Kustomization resource that points to this directory.
+# This is usually in a file like `clusters/staging/flux-system/gotk-sync.yaml`.
+#
+# It should look something like this:
+#
+# apiVersion: kustomize.toolkit.fluxcd.io/v1
+# kind: Kustomization
+# metadata:
+#   name: flux-system
+#   namespace: flux-system
+# spec:
+#   decryption:
+#     provider: sops
+#     secretRef:
+#       name: sops-age
+#   interval: 10m0s
+#   path: ./clusters/staging
+#   prune: true # This is important
+#   sourceRef:
+#     kind: GitRepository
+#     name: flux-system
+#   postBuild:
+#     substitute:
+#       cluster_name: "staging"
+#       cluster_region: "us-east-1"
+#   patches:
+#     - patch: |
+#         - op: add
+#           path: /spec/source/path
+#           value: ./clusters/staging/apps.yml # Point to your file
+#       target:
+#         kind: Kustomization
+#         name: apps
+#
+# Or, more simply, if you are not using a kustomization.yaml at all in that directory,
+# you can have a single YAML file that defines the resources.
+# If `apps.yml` contains a Kustomization resource (like this one), then the main
+# Kustomization should point to the directory, and this Kustomization will be applied.
+#
+# If you want the bootstrap Kustomization to directly reconcile `apps.yml`,
+# you would need to change the bootstrap process or manually edit the
+# `flux-system` Kustomization to reconcile a `HelmRelease` or another resource
+# that can handle plain YAMLs, as `Kustomization` expects a kustomization overlay.
+#
+# The simplest way is often to have a `kustomization.yaml` in `clusters/staging`
+# that lists `apps.yml` in its `resources` section.
+#
+# Example `clusters/staging/kustomization.yaml`:
+# ---
+# apiVersion: kustomize.config.k8s.io/v1beta1
+# kind: Kustomization
+# resources:
+#   - apps.yml
+kustomize.toolkit.fluxcd.io/v1
+kind: Kustomization
+metadata:
   name: apps-staging
   namespace: flux-system
 spec:
