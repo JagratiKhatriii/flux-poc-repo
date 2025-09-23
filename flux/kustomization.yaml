@@ -1,14 +1,4 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-metadata:
-  name: preprod-apps
-  namespace: flux-system
-spec:
-  interval: 1m
-  path: "./apps"          # folder containing your app YAMLs
-  prune: true                # remove resources deleted from Git
-  sourceRef:
-    kind: GitRepository
-    name: gitops-nonprod
-    namespace: flux-system
-  validation: client
+resources:
+  - ../apps
